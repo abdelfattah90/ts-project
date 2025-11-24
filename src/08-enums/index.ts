@@ -1,31 +1,52 @@
-// 📘 Enums & Const Enums
-// شرح منظم للعناصر (Enums) بأنواعها: numeric, string, const, واستخدامات عملية
-// ============================================================================
-
-/*
-============================================================================
-📑 فهرس الدرس (TOC)
-============================================================================
-1️⃣  Numeric Enums — الأساسيات
-2️⃣  String Enums
-3️⃣  Mixed Enums (لماذا لا نوصي بها)
-4️⃣  Const Enums — للأداء
-5️⃣  Enum vs Union Types
-6️⃣  استخدام أعضاء Enum كـ Types
-7️⃣  Iteration على Enums
-8️⃣  Enum Type Guards
-9️⃣  Ambient Enums
-🔟  Enums في Angular (نمط عملي)
-1️⃣1️⃣ مشاكل شائعة وحلولها
-1️⃣2️⃣ مثال عملي شامل: Order Management System
-1️⃣3️⃣ تمرين عملي: Ticket Management (مخطط وحل إرشادي)
-============================================================================
-*/
+/**
+ * 📘 TypeScript Enums Masterclass
+ * ============================================================================
+ * ملف تعليمي شامل يجمع بين النظرية والتطبيق العملي لـ Enums في TypeScript.
+ *
+ * 📑 فهرس المحتويات:
+ * 1️⃣ Numeric Enums (الأساسيات)
+ * 2️⃣ String Enums (النصية)
+ * 3️⃣ Mixed Enums (المختلطة)
+ * 4️⃣ Const Enums (للأداء)
+ * 5️⃣ Enum vs Union Types (المقارنة)
+ * 6️⃣ Enum Members as Types (تخصيص الأنواع)
+ * 7️⃣ Iteration (الدوران على القيم)
+ * 8️⃣ Type Guards (التحقق من الأنواع)
+ * 9️⃣ Ambient Enums (البيئات الخارجية)
+ * 🔟 Angular/Frontend Patterns (أنماط الواجهة)
+ * 1️⃣1️⃣ Common Pitfalls (مشاكل وحلول)
+ * 1️⃣2️⃣ Real World Example: Order System (نظام الطلبات)
+ * 1️⃣3️⃣ Exercise Solution: Ticket System (تمرين التذاكر)
+ * ============================================================================
+ */
 
 // ============================================================================
 // 1️⃣ Numeric Enums — الأساسيات
 // ============================================================================
 
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * نوع بيانات يسمح بتعريف مجموعة من الثوابت المسماة (Named Constants) التي تحمل قيماً رقمية.
+ * افتراضياً، تبدأ من 0 وتزيد بمقدار 1.
+ *
+ * ✅ لماذا نستخدمه؟
+ * - لاستبدال الأرقام المبهمة (Magic Numbers) بأسماء لها معنى.
+ * - يوفر خاصية Reverse Mapping (الوصول للاسم عن طريق الرقم).
+ *
+ * ✅ أين نستخدمه؟
+ * - تمثيل الاتجاهات (Up, Down).
+ * - أيام الأسبوع أو الشهور.
+ * - حالات النظام التي تخزن كأرقام في قاعدة البيانات (0, 1, 2).
+ *
+ * ✅ متى نستخدمه؟
+ * عندما يكون الترتيب مهماً أو عندما نريد توفير مساحة التخزين باستخدام الأرقام.
+ */
+
+// 💻 التطبيق العملي:
+
+// تعريف بسيط (يبدأ تلقائياً من 0)
 enum Direction {
     Up,    // 0
     Down,  // 1
@@ -35,26 +56,26 @@ enum Direction {
 
 function move(direction: Direction): void {
     switch (direction) {
-        case Direction.Up: console.log('Moving up'); break;
-        case Direction.Down: console.log('Moving down'); break;
-        case Direction.Left: console.log('Moving left'); break;
-        case Direction.Right: console.log('Moving right'); break;
+        case Direction.Up: console.log('Moving up ⬆️'); break;
+        case Direction.Down: console.log('Moving down ⬇️'); break;
+        case Direction.Left: console.log('Moving left ⬅️'); break;
+        case Direction.Right: console.log('Moving right ➡️'); break;
     }
 }
 
-// Reverse mapping (numeric enums فقط)
-console.log(Direction.Up);     // 0
-console.log(Direction[0]);    // "Up"
+// 💡 ميزة Reverse Mapping (خاصة بالـ Numeric Enums فقط)
+console.log(Direction.Up);     // المخرج: 0
+console.log(Direction[0]);     // المخرج: "Up"
 
-// تخصيص القيم
+// تخصيص القيم (Custom Initialization)
 enum Status {
-    Pending = 1,
-    Approved,  // 2
-    Rejected,  // 3
-    Cancelled  // 4
+    Pending = 1,   // بدأنا من 1
+    Approved,      // سيصبح 2 تلقائياً
+    Rejected,      // 3
+    Cancelled      // 4
 }
 
-// قيم مخصصة كما في HTTP statuses
+// مثال: HTTP Status Codes (قيم متباعدة)
 enum HttpStatus {
     OK = 200,
     Created = 201,
@@ -66,30 +87,50 @@ enum HttpStatus {
 }
 
 function handleResponse(status: HttpStatus): string {
-    switch (status) {
-        case HttpStatus.OK: return 'Success';
-        case HttpStatus.NotFound: return 'Resource not found';
-        case HttpStatus.InternalServerError: return 'Server error';
-        default: return 'Unknown status';
-    }
+    if (status === HttpStatus.OK) return '✅ Success';
+    if (status === HttpStatus.NotFound) return '❌ Resource not found';
+    return '⚠️ Unknown status';
 }
 
-// Computed / bit-flags
+// 💡 مثال متقدم: Bitwise Flags (دمج الصلاحيات)
 enum FileAccess {
     None = 0,
     Read = 1 << 0,       // 1
     Write = 1 << 1,      // 2
-    ReadWrite = Read | Write, // 3
+    ReadWrite = Read | Write, // 3 (يجمع الصلاحيتين)
     Execute = 1 << 2     // 4
 }
 
 function hasPermission(permission: FileAccess, required: FileAccess): boolean {
+    // استخدام Bitwise AND للتحقق
     return (permission & required) === required;
 }
 
 // ============================================================================
-// 2️⃣ String Enums
+// 2️⃣ String Enums — القيم النصية
 // ============================================================================
+
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * Enums يتم تهيئتها بقيم نصية (String Literals) بدلاً من الأرقام.
+ *
+ * ✅ لماذا نستخدمه؟
+ * - القيمة تكون مقروءة بوضوح عند الطباعة (Debugging) أو في الـ API Responses.
+ * - لا تتغير القيمة إذا أعدنا ترتيب العناصر (عكس الـ Numeric).
+ *
+ * ✅ أين نستخدمه؟
+ * - مستويات السجلات (LOGS).
+ * - أسماء الـ Routes في التطبيق.
+ * - قيم ثابتة يتوقعها الـ Backend كنصوص.
+ *
+ * ✅ متى نستخدمه؟
+ * عندما تكون "قراءة القيمة" أهم من "حجم البيانات".
+ * ⚠️ ملاحظة: لا تدعم Reverse Mapping.
+ */
+
+// 💻 التطبيق العملي:
 
 enum LogLevel {
     Error = 'ERROR',
@@ -99,26 +140,59 @@ enum LogLevel {
 }
 
 function log(level: LogLevel, message: string): void {
+    // النتيجة ستكون واضحة: [ERROR] System crashed
     console.log(`[${level}] ${message}`);
 }
 
-// String enums لا تدعم reverse mapping.
-
 // ============================================================================
-// 3️⃣ Mixed Enums — غير موصى بها
+// 3️⃣ Mixed Enums — (Heterogeneous)
 // ============================================================================
 
-// يمكن خلط قيم رقمية ونصية لكن يسبب تعقيداً
-enum Mixed {
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * خلط قيم رقمية ونصية في نفس الـ Enum.
+ *
+ * ❌ لماذا لا نوصي به؟
+ * - يسبب إرباكاً في التعامل.
+ * - يفقد مزايا الـ Reverse Mapping بشكل جزئي.
+ *
+ * ✅ متى نستخدمه؟
+ * نادراً جداً، ربما فقط إذا كنت تتعامل مع نظام قديم (Legacy) يفرض هذا النمط.
+ */
+
+// 💻 التطبيق العملي:
+
+enum MixedEnum {
     No = 0,
-    Yes = 'YES' as any
+    Yes = 'YES'
 }
-
-// تجنّب المزج — اختَر رقمية أو نصية.
+// ⚠️ نصيحة: تجنب هذا النمط، اختر إما أرقاماً بالكامل أو نصوصاً بالكامل.
 
 // ============================================================================
-// 4️⃣ Const Enums — للأداء الأفضل
+// 4️⃣ Const Enums — للأداء العالي
 // ============================================================================
+
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * نوع خاص يتم تعريفه بـ `const enum`. يتم حذفه تماماً أثناء عملية الـ Compilation.
+ *
+ * ✅ لماذا نستخدمه؟
+ * - تحسين الأداء وتقليل حجم ملف JavaScript النهائي.
+ * - يتم استبدال الاسم بالقيمة مباشرة (Inlining) في الكود.
+ *
+ * ✅ أين نستخدمه؟
+ * - في المكتبات الكبيرة.
+ * - في الحلقات التكرارية (Loops) الضخمة.
+ *
+ * ✅ متى نستخدمه؟
+ * عندما لا تحتاج إلى Reverse Mapping ولا تحتاج لاستخدام الـ Enum ككائن في الـ Runtime.
+ */
+
+// 💻 التطبيق العملي:
 
 const enum ConstDirection {
     Up,
@@ -127,51 +201,89 @@ const enum ConstDirection {
     Right
 }
 
-// عند التجميـع (compile) القيم ستُستبدل مباشرة بالأرقام — لا يبقى كائن enum في الـ runtime.
-
-// متى تستخدم const enum؟
-// ✅ عندما لا تحتاج reverse mapping أو iteration وتهدف لصغر الحجم والأداء.
+const myMove = ConstDirection.Up;
+// في الـ JS الناتج، سيتحول السطر أعلاه إلى: var myMove = 0; فقط.
 
 // ============================================================================
 // 5️⃣ Enum vs Union Types
 // ============================================================================
 
-// Enum
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما الفرق؟
+ * - Enum: كائن حقيقي موجود في الـ Runtime.
+ * - Union Type: تعريف موجود فقط في الـ TypeScript ويختفي عند التشغيل.
+ *
+ * ✅ متى تختار Union؟
+ * - للبساطة والسرعة.
+ * - عندما تكون القيم قليلة ولا تحتاج لتكرار استخدامها كـ "مجموعة".
+ *
+ * ✅ متى تختار Enum؟
+ * - عندما تريد تجميع الثوابت تحت "Namespace" واحد (مثل Status.Active).
+ * - عندما تحتاج لقيم وصفية (Descriptive Names).
+ */
+
+// 💻 التطبيق العملي:
+
+// 1. استخدام Enum
 enum StatusEnum {
     Active = 'ACTIVE',
-    Inactive = 'INACTIVE',
-    Pending = 'PENDING'
+    Inactive = 'INACTIVE'
 }
 
-// Union alternative
-type StatusUnion = 'ACTIVE' | 'INACTIVE' | 'PENDING';
+// 2. استخدام Union Type
+type StatusUnion = 'ACTIVE' | 'INACTIVE';
 
-// ملاحظات:
-// - Union أخف في runtime (لا كود إضافي)
-// - Enum يعطيك namespace واضح (StatusEnum.Active)
-// استخدم ما يناسب الحالة
+// استخدام Union بسيط ومباشر
+function setStatus(s: StatusUnion) { /* ... */ }
 
 // ============================================================================
-// 6️⃣ Enum members كـ Types
+// 6️⃣ Enum Members as Types — التخصيص الدقيق
 // ============================================================================
 
-enum DirectionStr {
-    Up = 'UP',
-    Down = 'DOWN',
-    Left = 'LEFT',
-    Right = 'RIGHT'
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * استخدام عضو محدد من الـ Enum كـ Type بحد ذاته.
+ *
+ * ✅ لماذا نستخدمه؟
+ * لإجبار متغير معين على قبول قيمة واحدة فقط من الـ Enum أو مجموعة فرعية منها.
+ */
+
+// 💻 التطبيق العملي:
+
+enum ShapeKind {
+    Circle = 'CIRCLE',
+    Square = 'SQUARE'
 }
 
-let up: DirectionStr.Up = DirectionStr.Up; // صحيح
-// up = DirectionStr.Down; // ❌ خطأ
+interface Circle {
+    kind: ShapeKind.Circle; // ✅ يجب أن تكون القيمة CIRCLE حصراً
+    radius: number;
+}
 
-type HorizontalDirection = DirectionStr.Left | DirectionStr.Right;
-
-function moveHorizontally(d: HorizontalDirection) { console.log(`Moving ${d}`); }
+interface Square {
+    kind: ShapeKind.Square; // ✅ يجب أن تكون القيمة SQUARE حصراً
+    sideLength: number;
+}
 
 // ============================================================================
-// 7️⃣ Enum Iteration
+// 7️⃣ Iteration — الدوران على القيم
 // ============================================================================
+
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ التحدي:
+ * عند الدوران على Numeric Enum، تظهر القيم والأسماء معاً بسبب Reverse Mapping.
+ *
+ * ✅ الحل:
+ * يجب تصفية (Filter) المفاتيح لاستبعاد الأرقام إذا كنت تريد الأسماء فقط.
+ */
+
+// 💻 التطبيق العملي:
 
 enum Colors {
     Red,
@@ -179,100 +291,86 @@ enum Colors {
     Blue
 }
 
-// الحصول على أسماء (non-numeric keys)
+// للحصول على الأسماء فقط ("Red", "Green", "Blue")
 const colorNames = Object.keys(Colors).filter(k => isNaN(Number(k)));
+
+// للحصول على القيم فقط (0, 1, 2)
 const colorValues = Object.keys(Colors)
     .filter(k => !isNaN(Number(k)))
     .map(k => Number(k));
 
-// مع String enum
-enum LogLevels {
-    Error = 'ERROR',
-    Warning = 'WARNING',
-    Info = 'INFO'
-}
-const logLevels = Object.values(LogLevels);
-
-function getEnumValues<T extends Record<string, string | number>>(enumObj: T): T[keyof T][] {
-    return Object.values(enumObj) as T[keyof T][];
-}
-
 // ============================================================================
-// 8️⃣ Enum Type Guards
+// 8️⃣ Enum Type Guards — التحقق الآمن
 // ============================================================================
+
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * ✅ ما هو؟
+ * دالة تتحقق مما إذا كانت قيمة معينة (غادمة من API مثلاً) تنتمي للـ Enum.
+ *
+ * ✅ لماذا نستخدمه؟
+ * لضمان سلامة البيانات قبل التعامل معها (Runtime Safety).
+ */
+
+// 💻 التطبيق العملي:
 
 enum UserRole {
     Admin = 'ADMIN',
-    Editor = 'EDITOR',
-    Viewer = 'VIEWER'
+    Editor = 'EDITOR'
 }
 
+// دالة Type Guard
 function isValidRole(value: string): value is UserRole {
     return Object.values(UserRole).includes(value as UserRole);
 }
 
-function processUserData(data: any) {
-    if (isValidRole(data.role)) {
-        console.log('User role:', data.role);
-    } else {
-        console.log('Invalid role');
-    }
-}
+const inputRole = "SUPER_ADMIN"; // قيمة غير صالحة
 
-// Generic helper
-function isEnumValue<T extends Record<string, string | number>>(enumObj: T, value: any): value is T[keyof T] {
-    return Object.values(enumObj).includes(value);
+if (isValidRole(inputRole)) {
+    console.log("✅ Valid Role");
+} else {
+    console.log("❌ Invalid Role");
 }
 
 // ============================================================================
-// 9️⃣ Ambient Enums
+// 9️⃣ Ambient Enums & 🔟 Angular Patterns
 // ============================================================================
 
-// يَستخدم عندما تريد تعريف enum موجود أصلاً في بيئة خارجية / مكتبة
-// declare enum ExternalEnum { Value1, Value2, Value3 }
+/*
+ * 💡 الشرح النظري:
+ * ----------------
+ * - Ambient Enums (`declare enum`): تستخدم لتعريف enums موجودة في مكتبة طرف ثالث ولا نملك كودها.
+ * - Angular/Frontend: الـ HTML Templates لا ترى الـ Enums، لذلك يجب ربطها بمتغير داخل الكلاس.
+ */
 
-// ============================================================================
-// 🔟 Enums في Angular (نمط عملي)
-// ============================================================================
-
-// app.enums.ts
-export enum AppUserStatus {
-    Active = 'ACTIVE',
-    Inactive = 'INACTIVE',
-    Suspended = 'SUSPENDED',
-    Deleted = 'DELETED'
+// مثال Angular (نظري):
+/*
+@Component({...})
+class MyComponent {
+    // كشف الـ Enum للـ Template
+    public UserRole = UserRole;
 }
-
-export enum NotificationType {
-    Success = 'success',
-    Error = 'error',
-    Warning = 'warning',
-    Info = 'info'
-}
-
-// في component: expose enum للـ template
-// UserStatus = AppUserStatus; // في الـ class
-
-// في الخدمة: استخدام Enum كنمط للـ requests
-// this.http.patch<User>(`/api/users/${userId}`, { status });
+// In Template: <div *ngIf="role === UserRole.Admin">...</div>
+*/
 
 // ============================================================================
-// 1️⃣1️⃣ مشاكل شائعة وطرق حلها
+// 1️⃣1️⃣ مشاكل شائعة (Common Pitfalls)
 // ============================================================================
 
-// Problem: API returns string
-function parseStatus(value: string): StatusEnum | null {
-    if (Object.values(StatusEnum).includes(value as StatusEnum)) return value as StatusEnum;
-    return null;
-}
-
-// Problem: JSON serialization of numeric enums -> number in parsed JSON
-// الحل: عند قراءة JSON قم بتحويل/التحقق بالقيم المتوقعة
+/*
+ * ⚠️ مشكلة 1: تحويل الـ JSON
+ * الـ Numeric Enum يظهر كرقم في الـ JSON، مما قد يفقد معناه بدون توثيق.
+ *
+ * ⚠️ مشكلة 2: القيم الافتراضية
+ * استخدام `const enum` في مكتبة (Library) قد يسبب مشاكل لمستخدمي المكتبة إذا تغيرت القيم لاحقاً.
+ */
 
 // ============================================================================
 // 1️⃣2️⃣ مثال عملي شامل: Order Management System
 // ============================================================================
 
+// تعريف الحالات (String للأمان والوضوح)
 enum OrderStatus {
     Draft = 'DRAFT',
     Pending = 'PENDING',
@@ -285,350 +383,159 @@ enum OrderStatus {
 
 enum PaymentStatus {
     Unpaid = 'UNPAID',
-    Pending = 'PENDING',
-    Paid = 'PAID',
-    Failed = 'FAILED',
-    Refunded = 'REFUNDED'
+    Paid = 'PAID'
 }
 
-enum PaymentMethod {
-    Cash = 'CASH',
-    Card = 'CARD',
-    PayPal = 'PAYPAL',
-    BankTransfer = 'BANK_TRANSFER'
-}
-
+// تعريف الأولويات (Const للأداء)
 const enum Priority {
     Low = 1,
-    Medium = 2,
-    High = 3,
-    Urgent = 4
+    High = 2
 }
 
 interface Order {
     id: number;
-    customerId: number;
     status: OrderStatus;
     paymentStatus: PaymentStatus;
-    paymentMethod: PaymentMethod;
     priority: Priority;
-    totalAmount: number;
-    createdAt: Date;
-    updatedAt: Date;
 }
 
-class OrderStatusManager {
-    private transitions = new Map<OrderStatus, { to: OrderStatus; allowed: boolean; requiresPayment?: boolean }[]>();
+class OrderManager {
+    // خريطة الانتقالات المسموحة (State Machine)
+    private transitions = new Map<OrderStatus, OrderStatus[]>([
+        [OrderStatus.Draft, [OrderStatus.Pending]],
+        [OrderStatus.Pending, [OrderStatus.Processing, OrderStatus.Cancelled]],
+        [OrderStatus.Processing, [OrderStatus.Shipped, OrderStatus.Cancelled]],
+        [OrderStatus.Shipped, [OrderStatus.Delivered]],
+    ]);
 
-    constructor() {
-        this.transitions.set(OrderStatus.Draft, [{ to: OrderStatus.Pending, allowed: true }]);
-        this.transitions.set(OrderStatus.Pending, [
-            { to: OrderStatus.Processing, allowed: true, requiresPayment: true },
-            { to: OrderStatus.Cancelled, allowed: true }
-        ]);
-        this.transitions.set(OrderStatus.Processing, [
-            { to: OrderStatus.Shipped, allowed: true },
-            { to: OrderStatus.Cancelled, allowed: true }
-        ]);
-        this.transitions.set(OrderStatus.Shipped, [{ to: OrderStatus.Delivered, allowed: true }]);
-        this.transitions.set(OrderStatus.Delivered, [{ to: OrderStatus.Refunded, allowed: true }]);
+    canTransition(current: OrderStatus, next: OrderStatus): boolean {
+        const allowed = this.transitions.get(current) || [];
+        return allowed.includes(next);
     }
 
-    canTransition(from: OrderStatus, to: OrderStatus): boolean {
-        const list = this.transitions.get(from) ?? [];
-        return list.some(t => t.to === to && t.allowed);
-    }
-
-    requiresPayment(from: OrderStatus, to: OrderStatus): boolean {
-        const list = this.transitions.get(from) ?? [];
-        return list.find(t => t.to === to)?.requiresPayment ?? false;
-    }
-
-    getAvailableTransitions(from: OrderStatus): OrderStatus[] {
-        const list = this.transitions.get(from) ?? [];
-        return list.filter(t => t.allowed).map(t => t.to);
-    }
-}
-
-class OrderService {
-    private statusManager = new OrderStatusManager();
-
-    updateOrderStatus(order: Order, newStatus: OrderStatus): { success: boolean; message: string } {
-        if (!this.statusManager.canTransition(order.status, newStatus)) {
-            return { success: false, message: `Cannot transition from ${order.status} to ${newStatus}` };
-        }
-
-        if (this.statusManager.requiresPayment(order.status, newStatus)) {
-            if (order.paymentStatus !== PaymentStatus.Paid) {
-                return { success: false, message: 'Payment required before processing' };
-            }
-        }
-
-        order.status = newStatus;
-        order.updatedAt = new Date();
-        return { success: true, message: `Order status updated to ${newStatus}` };
-    }
-
-    getOrderStatusLabel(status: OrderStatus): string {
-        switch (status) {
-            case OrderStatus.Draft: return 'مسودة';
-            case OrderStatus.Pending: return 'قيد الانتظار';
-            case OrderStatus.Processing: return 'قيد المعالجة';
-            case OrderStatus.Shipped: return 'تم الشحن';
-            case OrderStatus.Delivered: return 'تم التوصيل';
-            case OrderStatus.Cancelled: return 'ملغي';
-            case OrderStatus.Refunded: return 'مسترد';
-            default: {
-                const _exhaustive: never = status;
-                return _exhaustive;
-            }
+    updateStatus(order: Order, newStatus: OrderStatus): void {
+        if (this.canTransition(order.status, newStatus)) {
+            order.status = newStatus;
+            console.log(`✅ Order #${order.id} moved to ${newStatus}`);
+        } else {
+            console.error(`❌ Cannot move Order #${order.id} from ${order.status} to ${newStatus}`);
         }
     }
 }
+
+// تجربة النظام
+const manager = new OrderManager();
+const myOrder: Order = {
+    id: 101,
+    status: OrderStatus.Draft,
+    paymentStatus: PaymentStatus.Unpaid,
+    priority: Priority.High
+};
+
+manager.updateStatus(myOrder, OrderStatus.Pending);    // ✅ نجاح
+manager.updateStatus(myOrder, OrderStatus.Delivered);  // ❌ فشل (غير مسموح القفز)
 
 // ============================================================================
-// 1️⃣3️⃣ تمرين عملي: Ticket Management — خطة وحل إرشادي
+// 1️⃣3️⃣ تمرين عملي محلول: Ticket Management System
 // ============================================================================
 
 /*
-طُلب: بناء نظام Ticket Management. في الملف الأصلي يوجد تمرين مفصّل — هنا سأعطي مخطط حل إرشادي
-
-- استخدم string enum للحالات (TicketStatus)
-- استخدم numeric const enum للأولويات (TicketPriority)
-- استخدم const enum لمصدر التذكرة (TicketSource)
-- أنشئ interface Ticket مع الحقول المطلوبة
-- أنشئ class TicketManager مع قواعد الانتقال (Map) وطرق الفلترة والوصف
-- أضف Type Guards للتحقق من صلاحية القيم
-*/
-
-
-
-
-/**
- * =====================================================
- *                Ticket Management System
- * =====================================================
- *
-
- * يحتوي على:
- * 1. Enums
- * 2. Ticket Interface
- * 3. TicketManager Class
- * 4. Transition Rules
- * 5. Type Guards
- * 6. تجربة عملية للنظام
+ * 🛠️ متطلبات التمرين وحلها:
+ * 1. TicketStatus (String Enum) -> لحالات التذاكر.
+ * 2. TicketPriority (Numeric Enum) -> للمقارنة (> أو <).
+ * 3. TicketSource (Const Enum) -> لأننا لا نحتاج التكرار عليها.
+ * 4. إدارة عمليات التحول (Transitions).
  */
 
-// =====================================================
-// 1️⃣ Enums
-// =====================================================
-
-// String Enum — مناسب للـ debugging
+// 1. التعريفات
 export enum TicketStatus {
     Open = "OPEN",
     InProgress = "IN_PROGRESS",
     Resolved = "RESOLVED",
-    Closed = "CLOSED",
-    Reopened = "REOPENED"
+    Closed = "CLOSED"
 }
 
-// Numeric Enum — مناسب للمقارنة والتدرج
 export enum TicketPriority {
     Low = 1,
-    Normal = 2,
+    Medium = 2,
     High = 3,
     Critical = 4
 }
 
-// String Enum
-export enum TicketCategory {
-    Bug = "BUG",
-    Feature = "FEATURE",
-    Question = "QUESTION",
-    Documentation = "DOCUMENTATION"
-}
-
-// Const Enum — نستخدمه لأنه لا نحتاج iteration
 export const enum TicketSource {
-    Email = "EMAIL",
-    Phone = "PHONE",
     Web = "WEB",
-    Mobile = "MOBILE"
+    Email = "EMAIL",
+    Phone = "PHONE"
 }
-
-// =====================================================
-// 2️⃣ Ticket Interface
-// =====================================================
 
 export interface Ticket {
     id: number;
     title: string;
-    description: string;
     status: TicketStatus;
     priority: TicketPriority;
-    category: TicketCategory;
     source: TicketSource;
-    assignedTo?: string;
-    createdAt: Date;
     updatedAt: Date;
 }
 
-// =====================================================
-// 3️⃣ Transition Rules
-// =====================================================
-// نستخدم Map لربط كل حالة بالحالات المسموح التحول إليها
-
-const TRANSITIONS = new Map<TicketStatus, TicketStatus[]>([
-    [TicketStatus.Open, [TicketStatus.InProgress, TicketStatus.Closed]],
-    [TicketStatus.InProgress, [TicketStatus.Resolved, TicketStatus.Closed]],
-    [TicketStatus.Resolved, [TicketStatus.Closed, TicketStatus.Reopened]],
-    [TicketStatus.Closed, [TicketStatus.Reopened]],
-    [TicketStatus.Reopened, [TicketStatus.InProgress]]
-]);
-
-// =====================================================
-// 4️⃣ TicketManager Class
-// =====================================================
-
+// 2. مدير التذاكر
 export class TicketManager {
-    /**
-     * تغيير حالة التيكيت إذا كانت الحركة قانونية
-     */
-    updateStatus(ticket: Ticket, newStatus: TicketStatus): boolean {
-        const allowedStatuses = TRANSITIONS.get(ticket.status) ?? [];
+    // قواعد العمل (Business Logic Rules)
+    private validTransitions: Partial<Record<TicketStatus, TicketStatus[]>> = {
+        [TicketStatus.Open]: [TicketStatus.InProgress, TicketStatus.Closed],
+        [TicketStatus.InProgress]: [TicketStatus.Resolved],
+        [TicketStatus.Resolved]: [TicketStatus.Closed, TicketStatus.InProgress], // Reopen
+        [TicketStatus.Closed]: [TicketStatus.InProgress] // Reopen
+    };
 
-        if (!allowedStatuses.includes(newStatus)) {
-            return false; // الحركة غير مسموحة
+    /**
+     * تغيير حالة التذكرة
+     */
+    changeStatus(ticket: Ticket, newStatus: TicketStatus): boolean {
+        const allowed = this.validTransitions[ticket.status];
+
+        if (allowed && allowed.includes(newStatus)) {
+            ticket.status = newStatus;
+            ticket.updatedAt = new Date();
+            return true;
         }
-
-        ticket.status = newStatus;
-        ticket.updatedAt = new Date();
-        return true;
+        return false;
     }
 
     /**
-     * فلترة حسب Minimum Priority
+     * تصعيد التذاكر الحرجة
      */
-    filterByPriority(tickets: Ticket[], min: TicketPriority): Ticket[] {
-        return tickets.filter(t => t.priority >= min);
-    }
-
-    /**
-     * فلترة حسب Status معين
-     */
-    filterByStatus(tickets: Ticket[], status: TicketStatus): Ticket[] {
-        return tickets.filter(t => t.status === status);
-    }
-
-    /**
-     * Label عربي لحالة التيكيت
-     */
-    getStatusLabel(status: TicketStatus): string {
-        switch (status) {
-            case TicketStatus.Open:
-                return "مفتوح";
-            case TicketStatus.InProgress:
-                return "قيد العمل";
-            case TicketStatus.Resolved:
-                return "تم الحل";
-            case TicketStatus.Closed:
-                return "مغلق";
-            case TicketStatus.Reopened:
-                return "أعيد فتحه";
-            default:
-                const _exhaustive: never = status;
-                return _exhaustive;
-        }
-    }
-
-    /**
-     * Label عربي للأولوية
-     */
-    getPriorityLabel(priority: TicketPriority): string {
-        switch (priority) {
-            case TicketPriority.Low:
-                return "منخفض";
-            case TicketPriority.Normal:
-                return "عادي";
-            case TicketPriority.High:
-                return "عالٍ";
-            case TicketPriority.Critical:
-                return "حرج";
-            default:
-                const _e: never = priority;
-                return _e;
-        }
-    }
-
-    /**
-     * التيكيت يمكن تعيينه فقط إذا كان: Open أو InProgress
-     */
-    canAssign(ticket: Ticket): boolean {
-        return (
-            ticket.status === TicketStatus.Open ||
-            ticket.status === TicketStatus.InProgress
-        );
-    }
-
-    /**
-     * رفع الأولوية للتصعيد
-     */
-    escalate(ticket: Ticket): void {
+    escalateTicket(ticket: Ticket): void {
         if (ticket.priority < TicketPriority.Critical) {
-            ticket.priority++;
+            ticket.priority++; // نستفيد هنا من كونها Numeric Enum
+            console.log(`🆙 Ticket escalated to priority: ${TicketPriority[ticket.priority]}`);
         }
-        ticket.updatedAt = new Date();
+    }
+
+    /**
+     * Type Guard للتأكد من الحالة
+     */
+    isTicketStatus(value: any): value is TicketStatus {
+        return Object.values(TicketStatus).includes(value);
     }
 }
 
-// =====================================================
-// 5️⃣ Type Guards
-// =====================================================
-// التحقق من القيم الواردة من API أو JSON
+// 3. التشغيل التجريبي للتمرين
+console.log("\n--- 🎫 Ticket System Demo ---");
 
-export function isValidStatus(value: any): value is TicketStatus {
-    return Object.values(TicketStatus).includes(value);
-}
-
-export function isValidPriority(value: any): value is TicketPriority {
-    return Object.values(TicketPriority).includes(value);
-}
-
-// =====================================================
-// 6️⃣ تجربة النظام عملياً
-// =====================================================
-
-const manager = new TicketManager();
-
-const ticket: Ticket = {
-    id: 1,
-    title: "Login button not working",
-    description: "User cannot click login button on homepage",
+const ticketSys = new TicketManager();
+const bugTicket: Ticket = {
+    id: 500,
+    title: "Login Failure",
     status: TicketStatus.Open,
-    priority: TicketPriority.High,
-    category: TicketCategory.Bug,
+    priority: TicketPriority.High, // 3
     source: TicketSource.Web,
-    createdAt: new Date(),
     updatedAt: new Date()
 };
 
-// تجربة تحديث الحالة
-console.log("Current Status:", ticket.status);
-manager.updateStatus(ticket, TicketStatus.InProgress);
-console.log("After Update:", ticket.status);
+// محاولة تغيير الحالة
+const success = ticketSys.changeStatus(bugTicket, TicketStatus.InProgress);
+console.log(`Change to InProgress: ${success ? "✅ Allowed" : "❌ Denied"}`);
 
-// تجربة التصعيد
-manager.escalate(ticket);
-console.log("Priority After Escalation:", ticket.priority);
-
-// تجربة assignment
-console.log("Can Assign?", manager.canAssign(ticket));
-
-// تجربة type guards
-console.log(isValidStatus("IN_PROGRESS")); // true
-console.log(isValidPriority(3)); // true
-
-
-// ============================================================================
-// انتهى الدرس
-// ============================================================================
+// محاولة تصعيد الأولوية
+ticketSys.escalateTicket(bugTicket); // ستصبح 4 (Critical)
+console.log(`Current Priority Level: ${bugTicket.priority}`);

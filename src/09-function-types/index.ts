@@ -1,84 +1,113 @@
 /*
-=============================================
-📘 TypeScript Function Types (Beginner-Friendly)
-=============================================
+==============================================================================
+📘 الدليل الشامل لإتقان الدوال في TypeScript (Function Types)
+==============================================================================
+مرحباً بك! هذا الملف هو مرجعك العملي والنظري.
+تم دمج الشرح النظري مع الأمثلة البرمجية لتتمكن من الفهم والتطبيق في آن واحد.
 
-فهرس المحتوى:
-1. Function Type Expressions
-2. Call Signatures
-3. Construct Signatures
-4. Generic Functions
-5. Function Overloads
-6. Rest Parameters
-7. this Parameter
-8. void vs never vs undefined
-9. Callback Functions
-10. Higher-Order Functions
-11. Function Types في Angular
-12. مثال تطبيقي صغير (Basic)
----------------------------------------------
-
-⚠️ ملاحظة:
-هذا الدرس مُبسّط للمبتدئين ومناسب لمن يتعلم Angular لاحقًا.
-المفاهيم المتقدمة وُضعت في أسفل الملف بعزلٍ عن الأساسيات.
-=============================================
+📌 الفهرس:
+1. Function Type Expressions (تعابير أنواع الدوال)
+2. Call Signatures (توقيعات الاستدعاء)
+3. Construct Signatures (توقيعات البناء)
+4. Generic Functions (الدوال المعممة/الديناميكية)
+5. Function Overloads (تحميل الدوال الزائد)
+6. Rest Parameters (المعاملات المتبقية)
+7. this Parameter (سياق this)
+8. void vs never vs undefined (أنواع الارجاع الخاصة)
+9. Callback Functions (دوال الاستدعاء الخلفي)
+10. Higher-Order Functions (الدوال عالية الرتبة)
+11. Function Types in Angular (استخدامات عملية)
+12. Project: Simple Event System (مشروع تطبيقي)
+==============================================================================
 */
-
 
 /*
-=============================================
+==============================================================================
 1️⃣ Function Type Expressions
-=============================================
+==============================================================================
+✅ ما هو؟
+طريقة مختصرة لتعريف "شكل" الدالة باستخدام الـ Arrow Syntax.
+نحدد أنواع المدخلات (Parameters) ونوع المخرج (Return Type).
+
+✅ لماذا نستخدمه؟
+لضمان أن المتغير لا يقبل إلا دالة بمواصفات محددة، مما يمنع الأخطاء أثناء التمرير.
+
+✅ أين نستخدمه؟
+عند تعريف متغيرات ستحمل دوال، أو عند تعريف واجهات (Interfaces) تحتوي على دوال بسيطة.
+
+✅ متى نستخدمه؟
+عندما تكون الدالة "stateless" (ليس لها خصائص إضافية) ونريد تعريفاً سريعاً ومقروءاً.
 */
 
-// تعريف نوع دالة بسيط
-// MathOperation: تأخذ رقمين وتُرجع رقم
-// Function Type Expression → (param: Type) => ReturnType
-
+// الصيغة: (param: Type) => ReturnType
 type MathOperation = (a: number, b: number) => number;
 
+// تطبيق النوع على الدوال
 const add: MathOperation = (a, b) => a + b;
 const subtract: MathOperation = (a, b) => a - b;
 const multiply: MathOperation = (a, b) => a * b;
 
-// استخدام النوع
-add(5, 3);
+// 💡 الاستخدام: TypeScript سيصرخ إذا حاولت تمرير نصوص بدلاً من أرقام
+console.log("Add:", add(5, 3));      // Output: 8
 
-// تمرير دالة كـ parameter
+// مثال: دالة تقبل دالة أخرى كـ Parameter (Strategy Pattern)
 function calculate(op: MathOperation, x: number, y: number): number {
     return op(x, y);
 }
 
-calculate(add, 10, 5);
+console.log("Calculate:", calculate(multiply, 10, 5)); // Output: 50
 
 
 /*
-=============================================
+==============================================================================
 2️⃣ Call Signatures
-=============================================
+==============================================================================
+✅ ما هو؟
+تعريف لنوع الدالة باستخدام صيغة الكائن (Object Literal). يسمح لنا هذا بتعريف دالة
+تمتلك "خصائص" (Properties) بالإضافة لكونها قابلة للاستدعاء.
+
+✅ لماذا نستخدمه؟
+لأن في JavaScript، الدوال هي كائنات (Objects) ويمكن أن تحتوي على حقول مثل `description` أو `id`.
+
+✅ أين نستخدمه؟
+في المكتبات المتقدمة (مثل jQuery قديماً) أو عند إنشاء أدوات (Utils) تحمل إعدادات داخلية.
+
+✅ متى نستخدمه؟
+عندما تحتاج الدالة أن تحمل بيانات وصفية (Metadata) عن نفسها.
 */
 
-// شكل أكثر تقدّمًا: object + callable
-
 type Formatter = {
-    description: string;
-    (value: string): string; // call signature
+    description: string;      // خاصية
+    (value: string): string;  // ✅ هذا هو الـ Call Signature (ما يجعلها دالة)
 };
 
 function createFormatter(desc: string): Formatter {
+    // ⚠️ ملاحظة: نستخدم casting هنا لأن JS تسمح بإضافة خصائص للدوال
     const fn: any = (value: string) => `[${desc}] ${value}`;
     fn.description = desc;
     return fn;
 }
 
 const logger = createFormatter("LOG");
-logger("test");
+console.log(logger("System started")); // استدعاء كدالة
+console.log(logger.description);       // الوصول لخاصية
 
 
 /*
-=============================================
+==============================================================================
 3️⃣ Construct Signatures
-=============================================
+==============================================================================
+✅ ما هو؟
+تحديد نوع دالة "بناء" (Constructor)، أي دالة يمكن استدعاؤها باستخدام كلمة `new`.
+
+✅ لماذا نستخدمه؟
+للتعامل مع الـ Classes كقيم، وتمريرها كـ Parameters (مثلاً في Factory Pattern).
+
+✅ أين نستخدمه؟
+في أنظمة الـ Dependency Injection (مثل Angular) أو عند إنشاء دوال تقوم بإنشاء كائنات ديناميكياً.
+
+✅ متى نستخدمه؟
+عندما تريد تمرير "صنف" (Class) نفسه وليس "نسخة" (Instance) منه.
 */
 
 type PointConstructor = {
@@ -89,505 +118,296 @@ class Point {
     constructor(public x: number, public y: number) { }
 }
 
-const PointClass: PointConstructor = Point;
-const p = new PointClass(10, 20);
+// دالة مصنع تقبل الكلاس وتنشئ منه نسخة
+function createPoint(ctor: PointConstructor, x: number, y: number) {
+    return new ctor(x, y);
+}
+
+const p = createPoint(Point, 10, 20);
+console.log("Point created:", p);
 
 
 /*
-=============================================
+==============================================================================
 4️⃣ Generic Functions
-=============================================
+==============================================================================
+✅ ما هو؟
+دوال مرنة لا تحدد نوع البيانات مسبقاً، بل تستخدم "متغيراً للنوع" (مثل `<T>`)
+يتم تحديده لحظة الاستدعاء.
+
+✅ لماذا نستخدمه؟
+لكتابة كود قابل لإعادة الاستخدام (Reusable) يعمل مع أي نوع بيانات دون فقدان الـ Type Safety.
+
+✅ أين نستخدمه؟
+في دوال التعامل مع المصفوفات، طلبات الـ API، وأدوات المعالجة العامة.
+
+✅ متى نستخدمه؟
+عندما يكون منطق الدالة واحداً، ولكن نوع البيانات المدخلة يختلف من مرة لأخرى.
 */
 
-// Generic بسيط
+// <T> هو متغير يلتقط نوع البيانات الذي يمرره المستخدم
 function getFirst<T>(arr: T[]): T | undefined {
     return arr[0];
 }
 
-getFirst([1, 2, 3]); // number
-getFirst(["a", "b"]); // string
+// 💡 TypeScript يستنتج النوع تلقائياً
+const num = getFirst([1, 2, 3]);       // T يصبح number
+const str = getFirst(["a", "b", "c"]); // T يصبح string
 
-// Multiple Generics
-function pair<T, U>(a: T, b: U): [T, U] {
-    return [a, b];
-}
-
-// Constraints
-function getLength<T extends { length: number }>(item: T) {
+// Constraints: تقييد النوع (يجب أن يحتوي على length)
+function getLength<T extends { length: number }>(item: T): number {
     return item.length;
 }
 
-getLength("Ahmed");
-getLength([1, 2, 3]);
+getLength("Hello");   // مقبول (string له length)
+getLength([1, 2, 3]); // مقبول (Array له length)
+// getLength(123);    // ❌ خطأ: الأرقام ليس لها length
 
 
 /*
-=============================================
+==============================================================================
 5️⃣ Function Overloads
-=============================================
+==============================================================================
+✅ ما هو؟
+توفير عدة "توقيعات" (Signatures) لدالة واحدة، بحيث يمكن استدعاؤها بطرق مختلفة،
+مع وجود تنفيذ (Implementation) واحد يعالج كل الحالات.
+
+✅ لماذا نستخدمه؟
+لجعل واجهة الدالة (API) ذكية ومرنة وسهلة الاستخدام للمطورين الآخرين.
+
+✅ أين نستخدمه؟
+في مكتبات الـ DOM أو التعامل مع التواريخ، حيث يمكن للدالة أن تقبل رقم واحد أو عدة أرقام.
+
+✅ متى نستخدمه؟
+عندما تقوم الدالة بنفس المهمة جوهرياً لكن المدخلات تختلف جذرياً في الشكل أو العدد.
 */
 
+// 1. التوقيعات (ما يراه المستخدم)
 function makeDate(timestamp: number): Date;
 function makeDate(year: number, month: number, day: number): Date;
+
+// 2. التنفيذ (الكود الفعلي - مخفي عن المستخدم)
 function makeDate(a: number, b?: number, c?: number): Date {
-    if (b !== undefined && c !== undefined) return new Date(a, b - 1, c);
-    return new Date(a);
+    if (b !== undefined && c !== undefined) {
+        return new Date(a, b - 1, c); // الحالة الثانية
+    }
+    return new Date(a); // الحالة الأولى
 }
 
-makeDate(1234567);
-makeDate(2024, 11, 23);
+const d1 = makeDate(12345678);       // Timestamp
+const d2 = makeDate(2024, 11, 25);   // Y, M, D
 
 
 /*
-=============================================
+==============================================================================
 6️⃣ Rest Parameters
-=============================================
+==============================================================================
+✅ ما هو؟
+استخدام المعامل `...args` لتجميع عدد غير محدود من المدخلات في مصفوفة واحدة.
+
+✅ لماذا نستخدمه؟
+للتعامل مع الدوال التي لا نعرف عدد مدخلاتها مسبقاً (Variadic Functions).
+
+✅ أين نستخدمه؟
+في دوال الجمع الرياضي، أو دوال الـ Logging التي تقبل أي عدد من الرسائل.
+
+✅ متى نستخدمه؟
+بدلاً من استخدام الكائن القديم `arguments` للحصول على نوع مصفوفة حقيقي ومحمّي (Typed Array).
 */
 
 function sum(...nums: number[]): number {
-    return nums.reduce((s, n) => s + n, 0);
+    return nums.reduce((total, n) => total + n, 0);
 }
 
-sum(1, 2, 3);
+console.log("Sum:", sum(1, 2, 3, 4, 5)); // يقبل أي عدد
 
 
 /*
-=============================================
+==============================================================================
 7️⃣ this Parameter
-=============================================
+==============================================================================
+✅ ما هو؟
+تحديد نوع `this` بشكل صريح كأول باراميتر في الدالة (وهمي لا يتم تمريره فعلياً عند التشغيل).
+
+✅ لماذا نستخدمه؟
+لمنع TypeScript من اعتبار `this` من نوع `any`، ولتجنب أخطاء الـ Runtime عند ضياع السياق.
+
+✅ أين نستخدمه؟
+عند تمرير دوال (Callbacks) تحتاج للوصول لبيانات الكائن الأصلي، خاصة في برمجة الـ OOP.
+
+✅ متى نستخدمه؟
+عند استخراج دالة من كائن واستخدامها بشكل منفصل.
 */
 
 interface User {
-    name: string;
-    age: number;
+    id: number;
+    username: string;
 }
 
-interface UserMethods {
-    getName(this: User): string;
-    getAge(this: User): number;
+function printUser(this: User) {
+    // الآن TS يعرف أن this يحتوي على username
+    console.log(`User: ${this.username}`);
 }
 
-const userMethods: UserMethods = {
-    getName() {
-        return this.name;
-    },
-    getAge() {
-        return this.age;
-    }
-};
+const user: User = { id: 1, username: "Ali" };
 
-const myUser: User = { name: "Ahmed", age: 25 };
-
-userMethods.getName.call(myUser);
+// printUser(); // ❌ خطأ: يجب استدعاؤها ضمن سياق User
+printUser.call(user); // ✅ صحيح
 
 
 /*
-=============================================
+==============================================================================
 8️⃣ void vs never vs undefined
-=============================================
+==============================================================================
+✅ ما هو؟
+- `void`: الدالة تنتهي لكن لا ترجع قيمة مفيدة (تستخدم للـ Side Effects).
+- `never`: الدالة **لا** تنتهي أبداً (ترمية خطأ أو تدخل في حلقة لا نهائية).
+- `undefined`: الدالة ترجع قيمة `undefined` فعلياً.
+
+✅ لماذا نستخدمه؟
+لتوضيح نية المبرمج وسلوك الدالة للآخرين وللمترجم (Compiler).
+
+✅ متى نستخدمه؟
+- `void`: مع `console.log` أو تعديل الـ DOM.
+- `never`: في دوال معالجة الأخطاء القاتلة.
 */
 
-function logMessage(msg: string): void {
-    console.log(msg);
+function logMsg(msg: string): void {
+    console.log(msg); // ✅ تنتهي الدالة وتعود للتنفيذ
 }
 
-function throwErr(msg: string): never {
-    throw new Error(msg);
-}
-
-function maybeUndefined(): string | undefined {
-    return undefined;
+function fail(msg: string): never {
+    throw new Error(msg); // ❌ توقف التنفيذ تماماً هنا
 }
 
 
 /*
-=============================================
+==============================================================================
 9️⃣ Callback Functions
-=============================================
+==============================================================================
+✅ ما هو؟
+تمرير دالة كـ Argument لدالة أخرى ليتم استدعاؤها لاحقاً.
+
+✅ لماذا نستخدمه؟
+أساس البرمجة غير المتزامنة (Asynchronous) والتعامل مع الأحداث.
+
+✅ أين نستخدمه؟
+في `setTimeout`، طلبات السيرفر، ومستمعي الأحداث (Event Listeners).
 */
 
-type Callback = (result: string) => void;
+type Callback = (success: boolean) => void;
 
-function fetchData(url: string, cb: Callback): void {
-    cb("example");
+function saveData(data: string, cb: Callback) {
+    console.log(`Saving ${data}...`);
+    // محاكاة عملية حفظ
+    cb(true);
 }
 
-fetchData("/api", (r) => console.log(r));
+saveData("User Profile", (isSuccess) => {
+    console.log(isSuccess ? "Saved!" : "Failed");
+});
 
 
 /*
-=============================================
-🔟 Higher-Order Functions
-=============================================
+==============================================================================
+🔟 Higher-Order Functions (HOF)
+==============================================================================
+✅ ما هو؟
+دالة تأخذ دالة كمدخل، أو تُرجع دالة كمخرج.
+
+✅ لماذا نستخدمه؟
+لإنشاء دوال مركبة، وتغليف المنطق (Logic encapsulation)، مثل إضافة Logging لكل الدوال.
+
+✅ أين نستخدمه؟
+في Redux Middleware، وفي Angular Interceptors، وفي Decorators.
 */
 
-function withLogging<T extends any[], R>(fn: (...args: T) => R) {
-    return (...args: T) => {
-        console.log("Args:", args);
-        return fn(...args);
+// دالة تقوم بإضافة Log لأي دالة حسابية
+function withLogger(fn: (x: number, y: number) => number) {
+    return (x: number, y: number) => {
+        console.log(`Input: ${x}, ${y}`);
+        const result = fn(x, y);
+        console.log(`Output: ${result}`);
+        return result;
     };
 }
 
-const add2 = (a: number, b: number) => a + b;
-const loggedAdd = withLogging(add2);
+const loggedAdd = withLogger((a, b) => a + b);
 loggedAdd(5, 7);
 
 
 /*
-=============================================
-1️⃣1️⃣ Function Types في Angular
-=============================================
+==============================================================================
+1️⃣1️⃣ Function Types in Angular
+==============================================================================
+✅ أين نستخدم هذا في Angular؟
+1. **Event Emitters:** هي تطبيق لمفهوم Callbacks و Generics.
+2. **Http Interceptors:** تعتمد على HOFs.
+3. **Route Guards:** دوال تقرر إمكانية المرور (تُرجع boolean أو Observable).
 */
 
-// Event Handlers
-function handleClick(event: MouseEvent): void {
-    console.log(event.clientX);
+// مثال محاكاة لـ Event Handler في Angular
+interface SimpleEvent {
+    target: any;
+    timestamp: number;
 }
 
-function handleInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    console.log(input.value);
+// تعريف نوع الدالة التي تعالج الحدث
+type EventHandler = (event: SimpleEvent) => void;
+
+function onButtonClick(handler: EventHandler) {
+    const fakeEvent = { target: "Button", timestamp: Date.now() };
+    handler(fakeEvent);
 }
+
+onButtonClick((e) => console.log("Button clicked at", e.timestamp));
 
 
 /*
-=============================================
-⭐ مثال تطبيقي بسيط (مناسب للمبتدئين)
-=============================================
+==============================================================================
+⭐ مثال تطبيقي عملي: نظام أحداث (Event System)
+==============================================================================
+هذا المثال يجمع:
+- Generics (للتعامل مع أي نوع بيانات)
+- Function Types (لتعريف الـ Handlers)
+- Class Methods
 */
 
-// نظام بسيط لتسجيل الأحداث (Event System)
+// تعريف نوع الـ Handler باستخدام Generic <T>
+type Listener<T> = (data: T) => void;
 
-// handler: يستقبل قيمة
-// (data: T) => void
+class EventEmitter<T> {
+    // مصفوفة لتخزين الدوال (المستمعين)
+    private listeners: Listener<T>[] = [];
 
-type EventHandler<T> = (data: T) => void;
+    // دالة للتسجيل (Subscribe)
+    subscribe(listener: Listener<T>) {
+        this.listeners.push(listener);
 
-class SimpleEventEmitter<T> {
-    private handlers: EventHandler<T>[] = [];
-
-    on(handler: EventHandler<T>) {
-        this.handlers.push(handler);
+        // نرجع دالة لإلغاء الاشتراك (Cleanup pattern)
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
     }
 
+    // دالة للبث (Publish/Emit)
     emit(data: T) {
-        for (const h of this.handlers) h(data);
+        this.listeners.forEach(listener => listener(data));
     }
 }
 
-const emitter = new SimpleEventEmitter<string>();
+// --- تجربة النظام ---
+const chatChannel = new EventEmitter<string>();
 
-emitter.on((msg) => console.log("Received:", msg));
-emitter.emit("Hello Ahmed!");
+// المشترك الأول
+const unsubscribe1 = chatChannel.subscribe(msg => console.log("User 1 received:", msg));
 
+// المشترك الثاني
+chatChannel.subscribe(msg => console.log("User 2 received:", msg.toUpperCase()));
 
-/*
-=============================================
-📌 المـفاهيم المتقدمة (عزل تام)
-=============================================
-⚠️ ليست ضرورية الآن — ستحتاج إليها لاحقًا أثناء تعلم Angular RxJS.
----------------------------------------------
-- Call Signatures مع properties
-- Construct + Call together
-- Higher-order complex
-- Validation framework
-- Async validator chains
----------------------------------------------
-*/
+// إرسال رسالة
+chatChannel.emit("Hello World!");
 
-
-// // متقدم
-// // ============================================================================
-// // 📘 Function Types
-// // شرح متكامل: Function Type Expressions, Generics, Overloads, HOFs، وحل التمرين (Event System)
-// // ============================================================================
-
-// /*
-// ============================================================================
-// 📑 فهرس الدرس (TOC)
-// ============================================================================
-// 1️⃣  Function Type Expressions
-// 2️⃣  Call Signatures
-// 3️⃣  Construct Signatures
-// 4️⃣  Generic Functions
-// 5️⃣  Function Overloads
-// 6️⃣  Rest Parameters
-// 7️⃣  this Parameter Type
-// 8️⃣  Void vs Never vs Undefined
-// 9️⃣  Callback Functions
-// 🔟 Higher-Order Functions
-// 1️⃣1️⃣ Function Types في Angular (ملاحظة)
-// 1️⃣2️⃣ مثال عملي شامل: Validation Framework (مُختصر)
-// 1️⃣3️⃣ تمرين عملي محلول: Event System (مكتمل)
-// ============================================================================
-// */
-
-// // ============================================================================
-// // 1️⃣ Function Type Expressions - مثال مختصر
-// // ============================================================================
-
-// type MathOperation = (a: number, b: number) => number;
-
-// const add: MathOperation = (a, b) => a + b;
-// const multiply: MathOperation = (a, b) => a * b;
-
-// function calculate(operation: MathOperation, x: number, y: number): number {
-//   return operation(x, y);
-// }
-
-// // ============================================================================
-// // 2️⃣ Call Signatures - callable objects
-// // ============================================================================
-
-// type DescribableFunction = {
-//   description: string;
-//   (input: string): string;
-// };
-
-// function createFormatter(desc: string): DescribableFunction {
-//   const fn: any = (input: string) => `[${desc}] ${input}`;
-//   fn.description = desc;
-//   return fn as DescribableFunction;
-// }
-
-// // ============================================================================
-// // 3️⃣ Construct Signatures - newable
-// // ============================================================================
-
-// type PointConstructor = { new (x: number, y: number): { x: number; y: number } };
-// class Point { constructor(public x: number, public y: number) {} }
-// const PointClass: PointConstructor = Point;
-
-// // ============================================================================
-// // 4️⃣ Generic Functions - أساسيات وقيود
-// // ============================================================================
-
-// function getFirst<T>(arr: T[]): T | undefined { return arr[0]; }
-// function pair<T, U>(a: T, b: U): [T, U] { return [a, b]; }
-
-// function getLength<T extends { length: number }>(v: T): number { return v.length; }
-
-// function merge<T extends object, U extends object>(a: T, b: U): T & U { return { ...(a as any), ...(b as any) } as T & U; }
-
-// // ============================================================================
-// // 5️⃣ Function Overloads - مثال
-// // ============================================================================
-
-// function makeDate(timestamp: number): Date;
-// function makeDate(year: number, month: number, day: number): Date;
-// function makeDate(tsOrY: number, m?: number, d?: number): Date {
-//   if (m !== undefined && d !== undefined) return new Date(tsOrY, m - 1, d);
-//   return new Date(tsOrY);
-// }
-
-// // ============================================================================
-// // 6️⃣ Rest Parameters Types
-// // ============================================================================
-
-// function sum(...nums: number[]): number { return nums.reduce((s, n) => s + n, 0); }
-
-// // ============================================================================
-// // 7️⃣ this Parameter Type
-// // ============================================================================
-
-// interface User { name: string; age: number }
-// interface UserMethods { getName(this: User): string }
-
-// const userMethods: UserMethods = { getName() { return this.name; } };
-
-// // ============================================================================
-// // 8️⃣ Void vs Never vs Undefined - تذكير سريع
-// // ============================================================================
-
-// type VoidFunc = () => void;
-// const vfn: VoidFunc = () => { return true as any; };
-// function throwError(msg: string): never { throw new Error(msg); }
-
-// // ============================================================================
-// // 9️⃣ Callback Functions Types - نماذج
-// // ============================================================================
-
-// type Callback<T> = (result: T) => void;
-
-// type AsyncCallback<T, E = Error> = (err: E | null, data?: T) => void;
-
-// // ============================================================================
-// // 🔟 Higher-Order Functions - utilities
-// // ============================================================================
-
-// function withLogging<T extends any[], R>(fn: (...args: T) => R): (...args: T) => R {
-//   return (...args: T) => { console.log('calling', args); const r = fn(...args); console.log('result', r); return r; };
-// }
-
-// function curry<T, U, R>(fn: (a: T, b: U) => R) { return (a: T) => (b: U) => fn(a, b); }
-
-// function compose<A, B, C>(f: (b: B) => C, g: (a: A) => B) { return (a: A) => f(g(a)); }
-
-// // debounce / throttle utilities
-// function debounce<T extends any[]>(fn: (...args: T) => void, delay: number) {
-//   let t: ReturnType<typeof setTimeout> | null = null;
-//   return (...args: T) => { if (t) clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
-// }
-
-// function throttle<T extends any[]>(fn: (...args: T) => void, limit: number) {
-//   let last = 0;
-//   return (...args: T) => {
-//     const now = Date.now();
-//     if (now - last >= limit) { last = now; fn(...args); }
-//   };
-// }
-
-// // ============================================================================
-// // 1️⃣1️⃣ Function Types في Angular - ملاحظات سريعة
-// // ============================================================================
-
-// // في Angular ستستخدم أنواع دوال للـ handlers، guards، operators، و callbacks
-// // مثال: type GuardFunction = (route, state) => boolean | Observable<boolean>
-
-// // ============================================================================
-// // 1️⃣2️⃣ مثال عملي: Validation Framework (مختصر)
-// // ============================================================================
-
-// // (المثال الكامل في الدرس السابق) - هنا نلخص أنواع Validator
-
-// type ValidationResult = { valid: true } | { valid: false; errors: string[] };
-// type Validator<T> = (v: T) => ValidationResult;
-
-// const required: Validator<any> = (v) => v == null || v === '' ? { valid: false, errors: ['Required'] } : { valid: true };
-
-// // ============================================================================
-// // 1️⃣3️⃣ تمرين عملي محلول: Event System (حل كامل)
-// // ============================================================================
-
-// // الهدف: تنفيذ EventEmitter مع generics, middleware, map/filter, once, debounce/throttle utilities, subscribe overloads
-
-// // Basic types
-// export type EventHandler<T> = (data: T) => void;
-// export type AsyncEventHandler<T> = (data: T) => Promise<void>;
-// export type EventFilter<T> = (data: T) => boolean;
-// export type EventTransformer<T, U> = (data: T) => U;
-
-// export type Middleware<T> = (data: T, next: () => void) => void;
-
-// export interface Subscription { unsubscribe(): void }
-
-// // Subscription implementation helper
-// class SimpleSubscription implements Subscription {
-//   constructor(private cancel: () => void) {}
-//   unsubscribe() { this.cancel(); }
-// }
-
-// // EventEmitter implementation
-// export class EventEmitter<T> {
-//   private handlers = new Set<EventHandler<T>>();
-//   private middlewares: Middleware<T>[] = [];
-
-//   // on/off
-//   on(handler: EventHandler<T>): Subscription { return this.subscribe(handler); }
-//   off(handler: EventHandler<T>): void { this.handlers.delete(handler); }
-
-//   // subscribe overloads
-//   subscribe(handler: EventHandler<T>): Subscription;
-//   subscribe(eventName: string, handler: EventHandler<any>): Subscription;
-//   subscribe(events: string[], handler: EventHandler<any>): Subscription;
-//   subscribe(arg1: any, arg2?: any): Subscription {
-//     // Only generic single-emitter implementation is required by exercise.
-//     // Implement simple pattern: if arg1 is function -> subscribe to this emitter
-//     if (typeof arg1 === 'function') {
-//       const h: EventHandler<T> = arg1;
-//       this.handlers.add(h);
-//       return new SimpleSubscription(() => this.handlers.delete(h));
-//     }
-//     // fallbacks for overload signatures (not used in this single-emitter design)
-//     throw new Error('Unsupported subscribe signature in this EventEmitter');
-//   }
-
-//   // once
-//   once(handler: EventHandler<T>): Subscription {
-//     const wrapper: EventHandler<T> = (data) => { try { handler(data); } finally { this.off(wrapper); } };
-//     this.handlers.add(wrapper);
-//     return new SimpleSubscription(() => this.handlers.delete(wrapper));
-//   }
-
-//   // emit applies middleware chain then handlers
-//   emit(data: T): void {
-//     // build chain
-//     let i = -1;
-//     const run = (): void => {
-//       i++;
-//       if (i < this.middlewares.length) {
-//         try { this.middlewares[i](data, run); } catch (e) { console.error('Middleware error', e); }
-//       } else {
-//         // call handlers
-//         for (const h of Array.from(this.handlers)) {
-//           try { h(data); } catch (e) { console.error('Handler error', e); }
-//         }
-//       }
-//     };
-//     run();
-//   }
-
-//   // middleware
-//   use(mw: Middleware<T>): void { this.middlewares.push(mw); }
-
-//   // filter -> creates new emitter that only emits when predicate true
-//   filter(predicate: EventFilter<T>): EventEmitter<T> {
-//     const out = new EventEmitter<T>();
-//     this.on((data) => { if (predicate(data)) out.emit(data); });
-//     return out;
-//   }
-
-//   // map -> transforms T to U
-//   map<U>(transform: EventTransformer<T, U>): EventEmitter<U> {
-//     const out = new EventEmitter<U>();
-//     this.on((data) => out.emit(transform(data)));
-//     return out;
-//   }
-
-//   // helper to clear handlers (useful in tests)
-//   clear(): void { this.handlers.clear(); this.middlewares = []; }
-// }
-
-// // Higher-order utilities specific for EventHandlers
-// export function debounceHandler<T>(handler: EventHandler<T>, delay: number): EventHandler<T> {
-//   let t: ReturnType<typeof setTimeout> | null = null;
-//   return (data: T) => { if (t) clearTimeout(t); t = setTimeout(() => handler(data), delay); };
-// }
-
-// export function throttleHandler<T>(handler: EventHandler<T>, limit: number): EventHandler<T> {
-//   let last = 0;
-//   return (data: T) => { const now = Date.now(); if (now - last >= limit) { last = now; handler(data); } };
-// }
-
-// export function pipeHandlers<T>(...handlers: EventHandler<T>[]): EventHandler<T> {
-//   return (data: T) => { for (const h of handlers) h(data); };
-// }
-
-// // ============================================================================
-// // Example usage of EventEmitter
-// // ============================================================================
-
-// if (require && (require as any).main === module) {
-//   // quick demo when executing the file directly (node)
-//   const emitter = new EventEmitter<number>();
-
-//   const sub = emitter.subscribe((n) => console.log('handler1', n));
-//   emitter.on((n) => console.log('handler2', n));
-
-//   emitter.use((d, next) => { console.log('mw1 before', d); next(); console.log('mw1 after', d); });
-//   emitter.use((d, next) => { console.log('mw2 before', d); next(); });
-
-//   emitter.emit(1);
-
-//   // map/filter
-//   const mapped = emitter.map(n => `num:${n}`);
-//   mapped.on(s => console.log('mapped handler', s));
-//   emitter.emit(2);
-
-//   sub.unsubscribe();
-//   emitter.emit(3);
-// }
-
-// // ============================================================================
-// // انتهى الملف
-// // ============================================================================
+// إلغاء اشتراك الأول وإرسال رسالة أخرى
+unsubscribe1();
+chatChannel.emit("Second Message"); // سيستلمها User 2 فقط
