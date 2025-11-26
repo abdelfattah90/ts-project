@@ -11,8 +11,8 @@
 4. Readonly Properties
 5. Nested Objects
 6. Index Signatures
-7. Function Types — الأساسيات
-8. void و never
+7. Function Types
+8. void - never
 9. Optional & Default Parameters
 10. Rest Parameters
 11. Function Type Expressions
@@ -48,8 +48,8 @@
 
 // ✅ التوصيف المباشر Inline Type
 let user: { name: string; age: number } = {
-    name: "Ahmed",
-    age: 25,
+  name: "Ahmed",
+  age: 25,
 };
 
 // ❌ أخطاء محتملة:
@@ -88,21 +88,21 @@ let user: { name: string; age: number } = {
 */
 
 type User = {
-    name: string;
-    age: number;
-    email: string;
+  name: string;
+  age: number;
+  email: string;
 };
 
 let user1: User = {
-    name: "Ahmed",
-    age: 25,
-    email: "ahmed@example.com",
+  name: "Ahmed",
+  age: 25,
+  email: "ahmed@example.com",
 };
 
 let user2: User = {
-    name: "Sara",
-    age: 22,
-    email: "sara@example.com",
+  name: "Sara",
+  age: 22,
+  email: "sara@example.com",
 };
 
 let users: User[] = [user1, user2];
@@ -136,31 +136,31 @@ let users: User[] = [user1, user2];
 */
 
 type Product = {
-    id: number;
-    name: string;
-    price: number;
-    description?: string; // اختيارية
-    discount?: number; // اختيارية
+  id: number;
+  name: string;
+  price: number;
+  description?: string; // اختيارية
+  discount?: number; // اختيارية
 };
 
 const product1: Product = {
-    id: 1,
-    name: "Laptop",
-    price: 999,
+  id: 1,
+  name: "Laptop",
+  price: 999,
 };
 
 const product2: Product = {
-    id: 2,
-    name: "Mouse",
-    price: 25,
-    description: "Wireless mouse",
-    discount: 0.1,
+  id: 2,
+  name: "Mouse",
+  price: 25,
+  description: "Wireless mouse",
+  discount: 0.1,
 };
 
 function displayProduct(product: Product): string {
-    const desc = product.description ?? "No description";
-    const finalPrice = product.price * (1 - (product.discount ?? 0));
-    return `${product.name}: $${finalPrice} - ${desc}`;
+  const desc = product.description ?? "No description";
+  const finalPrice = product.price * (1 - (product.discount ?? 0));
+  return `${product.name}: $${finalPrice} - ${desc}`;
 }
 
 // ============================================
@@ -191,15 +191,15 @@ function displayProduct(product: Product): string {
 */
 
 type Config = {
-    readonly apiUrl: string;
-    readonly timeout: number;
-    retries: number;
+  readonly apiUrl: string;
+  readonly timeout: number;
+  retries: number;
 };
 
 const config: Config = {
-    apiUrl: "https://api.example.com",
-    timeout: 5000,
-    retries: 3,
+  apiUrl: "https://api.example.com",
+  timeout: 5000,
+  retries: 3,
 };
 
 config.retries = 5; // ✅ مسموح
@@ -209,9 +209,9 @@ config.retries = 5; // ✅ مسموح
 type ReadonlyUser = Readonly<User>;
 
 const readonlyUser: ReadonlyUser = {
-    name: "Ahmed",
-    age: 25,
-    email: "ahmed@example.com",
+  name: "Ahmed",
+  age: 25,
+  email: "ahmed@example.com",
 };
 
 // readonlyUser.name = "Ali"; // ❌ خطأ
@@ -243,35 +243,35 @@ const readonlyUser: ReadonlyUser = {
 */
 
 type Address = {
-    street: string;
-    city: string;
-    country: string;
-    zipCode?: string;
+  street: string;
+  city: string;
+  country: string;
+  zipCode?: string;
 };
 
 type UserWithAddress = {
-    id: number;
-    name: string;
-    email: string;
-    address: Address;
-    contacts?: {
-        phone?: string;
-        mobile?: string;
-    };
+  id: number;
+  name: string;
+  email: string;
+  address: Address;
+  contacts?: {
+    phone?: string;
+    mobile?: string;
+  };
 };
 
 const userWithAddress: UserWithAddress = {
-    id: 1,
-    name: "Ahmed",
-    email: "ahmed@example.com",
-    address: {
-        street: "123 Main St",
-        city: "Cairo",
-        country: "Egypt",
-    },
-    contacts: {
-        mobile: "+20 123 456 7890",
-    },
+  id: 1,
+  name: "Ahmed",
+  email: "ahmed@example.com",
+  address: {
+    street: "123 Main St",
+    city: "Cairo",
+    country: "Egypt",
+  },
+  contacts: {
+    mobile: "+20 123 456 7890",
+  },
 };
 
 console.log(userWithAddress.address.city);
@@ -307,12 +307,12 @@ console.log(userWithAddress.contacts?.phone ?? "Not provided");
 */
 
 type StringDictionary = {
-    [key: string]: string;
+  [key: string]: string;
 };
 
 const translations: StringDictionary = {
-    hello: "مرحبا",
-    thanks: "شكرا",
+  hello: "مرحبا",
+  thanks: "شكرا",
 };
 
 translations.welcome = "أهلا";
@@ -340,11 +340,11 @@ translations.welcome = "أهلا";
 */
 
 function add(a: number, b: number): number {
-    return a + b;
+  return a + b;
 }
 
 const subtract = function (a: number, b: number): number {
-    return a - b;
+  return a - b;
 };
 
 const multiply = (a: number, b: number): number => a * b;
@@ -371,11 +371,11 @@ never:
 */
 
 function logMessage(msg: string): void {
-    console.log(msg);
+  console.log(msg);
 }
 
 function throwError(message: string): never {
-    throw new Error(message);
+  throw new Error(message);
 }
 
 // ============================================
@@ -399,11 +399,11 @@ Default Parameters:
 */
 
 function greet(name: string, greeting?: string): string {
-    return `${greeting ?? "Hello"}, ${name}`;
+  return `${greeting ?? "Hello"}, ${name}`;
 }
 
 function greetBetter(name: string, greeting: string = "Hello"): string {
-    return `${greeting}, ${name}`;
+  return `${greeting}, ${name}`;
 }
 
 // ============================================
@@ -429,7 +429,7 @@ function greetBetter(name: string, greeting: string = "Hello"): string {
 */
 
 function sum(...nums: number[]): number {
-    return nums.reduce((total, n) => total + n, 0);
+  return nums.reduce((total, n) => total + n, 0);
 }
 
 // ============================================
@@ -461,7 +461,7 @@ type MathOperation = (a: number, b: number) => number;
 const addOp: MathOperation = (a, b) => a + b;
 
 function calculate(op: MathOperation, x: number, y: number): number {
-    return op(x, y);
+  return op(x, y);
 }
 
 // ============================================
@@ -487,14 +487,14 @@ function calculate(op: MathOperation, x: number, y: number): number {
 */
 
 type DescribableFunction = {
-    description: string;
-    (input: string): string;
+  description: string;
+  (input: string): string;
 };
 
 function createFormatter(desc: string): DescribableFunction {
-    const formatter = (text: string) => `[${desc}] ${text}`;
-    (formatter as DescribableFunction).description = desc;
-    return formatter as DescribableFunction;
+  const formatter = (text: string) => `[${desc}] ${text}`;
+  (formatter as DescribableFunction).description = desc;
+  return formatter as DescribableFunction;
 }
 
 // ============================================
@@ -525,7 +525,7 @@ function createFormatter(desc: string): DescribableFunction {
 */
 
 function getFirst<T>(arr: T[]): T | undefined {
-    return arr[0];
+  return arr[0];
 }
 
 // ============================================
@@ -552,64 +552,64 @@ function getFirst<T>(arr: T[]): T | undefined {
 type UserId = number | string;
 
 type UserAddress = {
-    street: string;
-    city: string;
-    country: string;
+  street: string;
+  city: string;
+  country: string;
 };
 
 type FullUser = {
-    readonly id: UserId;
-    name: string;
-    email: string;
-    age?: number;
-    address?: UserAddress;
-    createdAt: Date;
+  readonly id: UserId;
+  name: string;
+  email: string;
+  age?: number;
+  address?: UserAddress;
+  createdAt: Date;
 };
 
 type CreateUserDto = Omit<FullUser, "id" | "createdAt">;
 type UpdateUserDto = Partial<CreateUserDto>;
 
 class UserService {
-    private users: FullUser[] = [];
-    private currentId = 1;
+  private users: FullUser[] = [];
+  private currentId = 1;
 
-    createUser(data: CreateUserDto): FullUser {
-        const newUser: FullUser = {
-            ...data,
-            id: this.currentId++,
-            createdAt: new Date(),
-        };
-        this.users.push(newUser);
-        return newUser;
-    }
-
-    findUser(predicate: (u: FullUser) => boolean): FullUser | undefined {
-        return this.users.find(predicate);
-    }
-
-    updateUser(id: UserId, updates: UpdateUserDto): FullUser | null {
-        const user = this.users.find((u) => u.id === id);
-        if (!user) return null;
-
-        Object.assign(user, updates);
-        return user;
-    }
-
-    displayUser = (user: FullUser): string => {
-        const { name, email, age, address } = user;
-        const ageInfo = age ? `, Age: ${age}` : "";
-        const addressInfo = address ? `, ${address.city}` : "";
-        return `${name} (${email})${ageInfo}${addressInfo}`;
+  createUser(data: CreateUserDto): FullUser {
+    const newUser: FullUser = {
+      ...data,
+      id: this.currentId++,
+      createdAt: new Date(),
     };
+    this.users.push(newUser);
+    return newUser;
+  }
 
-    filterUsers(criteria: Partial<FullUser>, limit?: number): FullUser[] {
-        let result = this.users.filter((u) => {
-            return Object.entries(criteria).every(([key, value]) => {
-                return u[key as keyof FullUser] === value;
-            });
-        });
-        return limit ? result.slice(0, limit) : result;
-    }
+  findUser(predicate: (u: FullUser) => boolean): FullUser | undefined {
+    return this.users.find(predicate);
+  }
+
+  updateUser(id: UserId, updates: UpdateUserDto): FullUser | null {
+    const user = this.users.find((u) => u.id === id);
+    if (!user) return null;
+
+    Object.assign(user, updates);
+    return user;
+  }
+
+  displayUser = (user: FullUser): string => {
+    const { name, email, age, address } = user;
+    const ageInfo = age ? `, Age: ${age}` : "";
+    const addressInfo = address ? `, ${address.city}` : "";
+    return `${name} (${email})${ageInfo}${addressInfo}`;
+  };
+
+  filterUsers(criteria: Partial<FullUser>, limit?: number): FullUser[] {
+    let result = this.users.filter((u) => {
+      return Object.entries(criteria).every(([key, value]) => {
+        return u[key as keyof FullUser] === value;
+      });
+    });
+    return limit ? result.slice(0, limit) : result;
+  }
 }
 
 /*
